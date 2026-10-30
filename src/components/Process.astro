@@ -1,0 +1,269 @@
+---
+// A street in Erbil seen from the side at dusk, the citadel on the skyline. Without JavaScript (or with reduced
+// motion) it shows the finished job with the machine parked; src/scripts/motion.js rewinds it and plays the four
+// steps as the visitor scrolls: a worker paints the route, the teal Alpin skid steer cuts the slot with its wheel
+// saw, the duct goes in and lights up, the slot is filled and sealed and traffic comes back.
+import { markSVG } from '../assets/logo/mark.js';
+
+const { t } = Astro.props;
+
+// deterministic pseudo-random numbers, so the street is the same on every build
+let s = 11;
+const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+const houses = [];
+for (let x = -10; x < 1030; ) {
+  const w = 64 + rnd() * 70, h = 54 + rnd() * 70;
+  houses.push({ x, w, h, tank: rnd() > 0.45, lit: Array.from({ length: Math.floor(w / 26) * Math.floor(h / 30) }, () => rnd() > 0.72) });
+  x += w + 6 + rnd() * 18;
+}
+const far = [];
+for (let x = 600; x < 1210; ) {
+  const w = 36 + rnd() * 56, h = 40 + rnd() * 66;
+  far.push({ x, w, h });
+  x += w + rnd() * 10;
+}
+const stars = Array.from({ length: 26 }, () => ({ x: rnd() * 1200, y: rnd() * 150, r: 0.6 + rnd() * 1.1, o: 0.25 + rnd() * 0.5 }));
+const teeth = Array.from({ length: 36 }, (_, i) => {
+  const a = (i / 36) * Math.PI * 2, p = (r, x) => `${(r * Math.cos(x)).toFixed(1)} ${(r * Math.sin(x)).toFixed(1)}`;
+  return `M${p(41, a)}L${p(47, a + 0.05)}L${p(45, a + 0.1)}L${p(41, a + Math.PI / 36)}Z`;
+}).join('');
+const tread = Array.from({ length: 18 }, (_, i) => {
+  const a = (i / 18) * Math.PI * 2, p = (r, x) => `${(r * Math.cos(x)).toFixed(1)} ${(r * Math.sin(x)).toFixed(1)}`;
+  return `M${p(25, a - 0.08)}L${p(31, a - 0.06)}L${p(31, a + 0.1)}L${p(25, a + 0.12)}Z`;
+}).join('');
+const tire = `<circle r="30" fill="#0c0e15"/><path d="${tread}" fill="#1c2030"/><circle r="17" fill="#139aa6"/><circle r="17" fill="none" stroke="#5fd6dd" stroke-opacity=".5" stroke-width="1.5"/><circle r="7" fill="#0c0e15"/><g fill="#0c0e15"><circle cx="0" cy="-11" r="2"/><circle cx="11" cy="0" r="2"/><circle cx="0" cy="11" r="2"/><circle cx="-11" cy="0" r="2"/></g>`;
+---
+<section class="process" id="process">
+  <div class="wrap section-head process-head" data-reveal>
+    <h2>{t.process.title}</h2>
+    <p class="lead">{t.process.intro}</p>
+  </div>
+  <div class="process-stage" data-process>
+    <figure class="process-figure">
+      <svg viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" direction="ltr" role="img" aria-labelledby="process-figure-desc" data-scene>
+        <defs>
+          <linearGradient id="pr-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#060b22" /><stop offset="0.58" stop-color="#0e1538" /><stop offset="0.86" stop-color="#211a4a" /><stop offset="1" stop-color="#3a1e4b" /></linearGradient>
+          <radialGradient id="pr-lamp"><stop offset="0" stop-color="#fff6ea" /><stop offset="0.22" stop-color="#e1d4ff" stop-opacity="0.5" /><stop offset="1" stop-color="#b9a4ff" stop-opacity="0" /></radialGradient>
+          <linearGradient id="pr-cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9e1ff" stop-opacity="0.2" /><stop offset="1" stop-color="#e9e1ff" stop-opacity="0" /></linearGradient>
+          <linearGradient id="pr-beam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff8e4" stop-opacity="0.42" /><stop offset="1" stop-color="#fff8e4" stop-opacity="0" /></linearGradient>
+          <linearGradient id="pr-core" x1="0" x2="1"><stop offset="0" stop-color="#ff2d3d" /><stop offset="0.55" stop-color="#ff2f97" /><stop offset="1" stop-color="#b9a4ff" /></linearGradient>
+          <radialGradient id="pr-pulse"><stop offset="0" stop-color="#ffffff" /><stop offset="0.35" stop-color="#ff8a94" /><stop offset="1" stop-color="#ff2d3d" stop-opacity="0" /></radialGradient>
+          <linearGradient id="pr-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34477c" /><stop offset="0.5" stop-color="#18244a" /><stop offset="1" stop-color="#0e1531" /></linearGradient>
+          <linearGradient id="pr-teal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3cc4cd" /><stop offset="0.4" stop-color="#18a2ae" /><stop offset="1" stop-color="#0d737d" /></linearGradient>
+          <filter id="pr-glow" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          <filter id="pr-riser" x="-400%" y="-20%" width="900%" height="140%"><feGaussianBlur stdDeviation="4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          <filter id="pr-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" /></filter>
+          <pattern id="pr-asphalt" width="16" height="10" patternUnits="userSpaceOnUse"><rect width="16" height="10" fill="#23273c" /><circle cx="3" cy="3" r="1" fill="#33384f" /><circle cx="11" cy="7" r="0.9" fill="#2d3248" /><circle cx="14" cy="2" r="0.7" fill="#3a405a" /></pattern>
+          <pattern id="pr-base" width="22" height="16" patternUnits="userSpaceOnUse"><rect width="22" height="16" fill="#161b31" /><circle cx="5" cy="6" r="2.2" fill="#20274a" /><circle cx="16" cy="11" r="2.6" fill="#1d2343" /><circle cx="12" cy="3" r="1.4" fill="#232a4d" /></pattern>
+          <pattern id="pr-soil" width="34" height="26" patternUnits="userSpaceOnUse"><rect width="34" height="26" fill="#0b1026" /><circle cx="8" cy="9" r="1.4" fill="#141b38" /><circle cx="25" cy="19" r="2" fill="#121935" /><circle cx="29" cy="5" r="1" fill="#161d3b" /></pattern>
+          <pattern id="pr-gravel" width="18" height="12" patternUnits="userSpaceOnUse"><rect width="18" height="12" fill="#2a3150" /><circle cx="4" cy="4" r="1.8" fill="#3c4570" /><circle cx="12" cy="8" r="1.5" fill="#363f66" /><circle cx="15" cy="3" r="1.1" fill="#46507c" /></pattern>
+          <pattern id="pr-pavers" width="24" height="12" patternUnits="userSpaceOnUse"><rect width="24" height="12" fill="#262d4f" /><path d="M0 0.5H24M0.5 0V12M12.5 0V12" stroke="#1a2040" /></pattern>
+          <pattern id="pr-mesh" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 0.5H6M0.5 0V6" stroke="#06080e" stroke-width="1.3" /></pattern>
+          <mask id="pr-moon"><circle cx="1090" cy="70" r="15" fill="#fff" /><circle cx="1098" cy="64" r="13" fill="#000" /></mask>
+          <clipPath id="pr-route"><rect x="0" y="288" width="1200" height="16" /></clipPath>
+          <clipPath id="pr-slot"><rect x="0" y="296" width="1200" height="46" /></clipPath>
+          <clipPath id="pr-fill"><rect x="0" y="296" width="1200" height="28" /></clipPath>
+          <clipPath id="pr-lay"><rect x="0" y="318" width="1200" height="24" /></clipPath>
+          <clipPath id="pr-run"><rect x="0" y="300" width="1200" height="50" /></clipPath>
+        </defs>
+
+        <!-- sky, stars, a new moon, and the citadel of Erbil on its mound; farther things are paler -->
+        <rect width="1200" height="300" fill="url(#pr-sky)" />
+        <g fill="#dfe4ff">{stars.map(st => <circle cx={st.x.toFixed(1)} cy={st.y.toFixed(1)} r={st.r.toFixed(2)} opacity={st.o.toFixed(2)} />)}</g>
+        <circle cx="1090" cy="70" r="46" fill="url(#pr-lamp)" opacity="0.25" />
+        <circle cx="1090" cy="70" r="15" fill="#f1ecff" mask="url(#pr-moon)" />
+        <g fill="#222661" stroke="#4b4192" stroke-width="1.5">
+          <path d="M10 300C96 246 160 168 236 150L560 146C636 158 690 232 760 300Z" />
+          <path d="M236 152V128H254V122H280V130H306V116H326V124H352V112H372V100H384V82H396V74H408V82H420V100H432V112H456V122H480V114H500V126H522V118H540V130H560V150Z" fill="#262a68" />
+        </g>
+        <g fill="#b9a4ff" opacity="0.6"><rect x="262" y="134" width="3" height="4" /><rect x="312" y="126" width="3" height="4" /><rect x="340" y="132" width="3" height="4" /><rect x="444" y="128" width="3" height="4" /><rect x="486" y="132" width="3" height="4" /><rect x="528" y="136" width="3" height="4" /><rect x="394" y="88" width="3" height="5" /></g>
+        <path d="M386 150v-14a10 10 0 0 1 20 0v14Z" fill="#14184a" />
+        <g fill="#1a2150">{far.map(b => <rect x={b.x.toFixed(1)} y={(300 - b.h).toFixed(1)} width={b.w.toFixed(1)} height={b.h.toFixed(1)} />)}</g>
+
+        <!-- power poles and their sagging wires, as in the photos -->
+        <g stroke="#2a335e" fill="none">
+          <path d="M-20 142Q80 160 160 136Q340 162 520 136Q700 162 880 136Q1040 160 1220 140M-20 152Q80 170 160 146Q340 172 520 146Q700 172 880 146Q1040 170 1220 150" stroke-width="1.4" />
+          <path d="M160 292V120M150 132H170M520 292V120M510 132H530M880 292V120M870 132H890" stroke-width="4" />
+        </g>
+
+        <!-- houses along the street, water tanks on the roofs -->
+        {houses.map(b => {
+          const cols = Math.floor(b.w / 26), rows = Math.floor(b.h / 30), y = 292 - b.h;
+          return (
+            <g>
+              <rect x={b.x.toFixed(1)} y={y.toFixed(1)} width={b.w.toFixed(1)} height={b.h.toFixed(1)} fill="#141c44" />
+              <rect x={b.x.toFixed(1)} y={y.toFixed(1)} width={b.w.toFixed(1)} height="3" fill="#1d275a" />
+              {b.tank && <rect x={(b.x + b.w * 0.62).toFixed(1)} y={(y - 9).toFixed(1)} width="13" height="9" rx="3" fill="#2a3363" />}
+              {b.lit.map((on, k) => (
+                <rect x={(b.x + 10 + (k % cols) * 26).toFixed(1)} y={(y + 12 + Math.floor(k / cols) * 30).toFixed(1)} width="10" height="13" fill={on ? '#ffd7a0' : '#0d1433'} opacity={on ? 0.55 : 1} />
+              ))}
+            </g>
+          );
+        })}
+
+        <!-- the house that gets connected -->
+        <g>
+          <rect x="1040" y="168" width="124" height="124" fill="#18225a" />
+          <rect x="1034" y="162" width="136" height="8" fill="#222e6b" />
+          <rect x="1120" y="150" width="16" height="12" rx="3" fill="#2f3b78" />
+          <g fill="#b9a4ff" filter="url(#pr-glow)">
+            {[0, 1, 2].map(r => [0, 1, 2].map(c => <rect data-p="win" x={1054 + c * 34} y={182 + r * 30} width="20" height="16" rx="2" />))}
+          </g>
+          <rect x="1092" y="262" width="22" height="30" fill="#0b1130" />
+          <rect x="1068" y="270" width="12" height="16" rx="2" fill="#2b3670" />
+        </g>
+
+        <!-- street lights -->
+        <g>
+          {[330, 700, 1000].map(x => (
+            <g>
+              <path d={`M${x} 292V108q0-10 10-10h18`} stroke="#2c3563" stroke-width="4" fill="none" />
+              <path d={`M${x + 22} 104L${x - 30} 300H${x + 120}Z`} fill="url(#pr-cone)" />
+              <circle cx={x + 26} cy="102" r="26" fill="url(#pr-lamp)" />
+            </g>
+          ))}
+        </g>
+
+        <!-- pavement behind the road, then the cut-away ground -->
+        <rect x="0" y="286" width="1200" height="10" fill="url(#pr-pavers)" />
+        <rect x="0" y="294" width="1200" height="6" fill="#384069" />
+        <rect x="0" y="300" width="1200" height="22" fill="url(#pr-asphalt)" />
+        <rect x="0" y="322" width="1200" height="34" fill="url(#pr-base)" />
+        <rect x="0" y="356" width="1200" height="104" fill="url(#pr-soil)" />
+        <path d="M0 300.5H1200" stroke="#4d5788" stroke-width="1.5" />
+        <g fill="#141b3d" stroke="#283163" stroke-width="2"><circle cx="430" cy="404" r="17" /><circle cx="770" cy="420" r="9" /></g>
+
+        <!-- 1. the route, painted on the road -->
+        <g clip-path="url(#pr-route)">
+          <path d="M30 297H1170" stroke="#ff2d3d" stroke-width="4" stroke-dasharray="16 10" />
+        </g>
+        <!-- 2. the slot the saw leaves -->
+        <g clip-path="url(#pr-slot)">
+          <rect x="30" y="300" width="1140" height="38" fill="#02040c" />
+          <path d="M30 338H1170" stroke="#1d2546" stroke-width="2" />
+        </g>
+        <!-- 3. the duct, and the light in it -->
+        <g data-p="duct" clip-path="url(#pr-lay)">
+          <rect x="36" y="324" width="1128" height="12" rx="6" fill="#11131b" />
+          <path d="M42 326.5H1158" stroke="#3c4258" stroke-width="1.5" />
+        </g>
+        <g data-p="light" clip-path="url(#pr-run)">
+          <rect x="40" y="327" width="1120" height="6" rx="3" fill="url(#pr-core)" filter="url(#pr-glow)" />
+          <g>
+            <ellipse class="duct-pulse" cx="56" cy="330" rx="34" ry="5" fill="url(#pr-pulse)" />
+            <ellipse class="duct-pulse" cx="56" cy="330" rx="34" ry="5" fill="url(#pr-pulse)" />
+            <ellipse class="duct-pulse" cx="56" cy="330" rx="34" ry="5" fill="url(#pr-pulse)" />
+          </g>
+        </g>
+        <!-- 4. backfill and the sealed surface -->
+        <g clip-path="url(#pr-fill)">
+          <rect x="28" y="300" width="1144" height="23" fill="url(#pr-gravel)" />
+          <rect x="26" y="299" width="1148" height="5" fill="#2e3555" />
+        </g>
+
+        <!-- the riser from the duct up into the house, drawn over the fill like the rest of the cut-away -->
+        <rect data-p="lead" x="1072.5" y="286" width="3" height="44" fill="#b9a4ff" filter="url(#pr-riser)" />
+
+        <!-- the painter, in the green vest the crews wear -->
+        <g data-p="painter" transform="translate(1260 0)">
+          <g transform="translate(0 300) scale(0.8)">
+            <g data-p="leg"><path d="M-2 -86V-6" stroke="#1d2233" stroke-width="11" stroke-linecap="round" /></g>
+            <g data-p="leg"><path d="M2 -86V-6" stroke="#262c40" stroke-width="11" stroke-linecap="round" /></g>
+            <rect x="-16" y="-160" width="32" height="80" rx="9" fill="#232a40" />
+            <path d="M-17 -152h34v58h-34z" fill="#9fdc2c" />
+            <path d="M-17 -122h34M-17 -108h34" stroke="#e9eef6" stroke-width="3" />
+            <path d="M10 -146L30 -96" stroke="#232a40" stroke-width="9" stroke-linecap="round" />
+            <rect x="24" y="-100" width="10" height="22" rx="2" fill="#ff2d3d" />
+            <circle cx="0" cy="-176" r="13" fill="#3a2f3c" />
+            <path d="M-16 -178a16 16 0 0 1 32 0h4v4h-40v-4z" fill="#eef1f8" />
+            <g fill="#ff2d3d" opacity="0.8"><circle cx="31" cy="-58" r="3" /><circle cx="35" cy="-40" r="2.4" /><circle cx="29" cy="-24" r="2" /></g>
+          </g>
+        </g>
+
+        <!-- the machine: a teal Alpin skid steer as in the crews' photographs, a wheel saw on its arms, driving right -->
+        <g data-p="rig" transform="translate(996 0)">
+          <path d="M-156 136L-36 300H110V258Z" fill="url(#pr-beam)" />
+          <g data-p="blade" transform="translate(0 0)">
+            <g transform="translate(0 256)">
+              <g class="blade-spin">
+                <circle r="44" fill="#7b839c" />
+                <circle r="34" fill="none" stroke="#a7aec4" stroke-width="2" stroke-dasharray="4 7" />
+                <path d={teeth} fill="#e3e7f2" />
+              </g>
+            </g>
+          </g>
+          <!-- the saw's heavy black frame and shroud, and the hoses from the arms -->
+          <path d="M-104 224H-50V252H-104Z" fill="#1b1f2a" />
+          <path d="M-98 256L-54 284" stroke="#1b1f2a" stroke-width="9" stroke-linecap="round" />
+          <rect x="-54" y="206" width="110" height="90" rx="8" fill="#12151d" />
+          <rect x="-58" y="201" width="118" height="11" rx="4" fill="#252a38" />
+          <path d="M-18 214V290M22 214V290" stroke="#1e2230" stroke-width="5" />
+          <path d="M-48 293H50" stroke="#2c3242" stroke-width="5" stroke-linecap="round" />
+          <g fill="#3b4256"><circle cx="-44" cy="222" r="2.4" /><circle cx="46" cy="222" r="2.4" /><circle cx="-44" cy="282" r="2.4" /><circle cx="46" cy="282" r="2.4" /></g>
+          <path d="M-104 232C-70 196-10 186 26 204" stroke="#0b0d12" stroke-width="5" fill="none" />
+          <path d="M-104 242C-66 210-6 200 34 212" stroke="#0b0d12" stroke-width="4" fill="none" />
+          <g data-p="motor" transform="translate(0 0)">
+            <circle cx="0" cy="256" r="17" fill="#1d212b" stroke="#3b4256" stroke-width="2.5" />
+            <circle cx="0" cy="256" r="6" fill="#4a5268" />
+          </g>
+          <g class="dust" data-p="dust" fill="#c9cfe6" opacity="0">
+            <circle cx="40" cy="296" r="4" /><circle cx="44" cy="292" r="3" /><circle cx="36" cy="290" r="3.4" /><circle cx="48" cy="297" r="2.6" />
+            <circle cx="42" cy="286" r="2.8" /><circle cx="52" cy="292" r="2.2" /><circle cx="34" cy="296" r="2.4" /><circle cx="46" cy="300" r="1.8" />
+            <ellipse cx="-10" cy="270" rx="70" ry="26" fill="#aab0cc" opacity="0.18" filter="url(#pr-blur)" />
+          </g>
+
+          <!-- chassis, the louvered engine at the back, the tower the arms pivot on, the company's sticker -->
+          <path d="M-310 284V204Q-310 196-302 196H-142Q-134 196-132 204L-128 250V284Z" fill="url(#pr-teal)" />
+          <rect x="-314" y="185" width="56" height="14" rx="3" fill="#13161f" />
+          <path d="M-308 192H-264" stroke="#2a2f3e" stroke-width="2" stroke-dasharray="7 3" />
+          <rect x="-304" y="206" width="34" height="26" rx="3" fill="#12151d" />
+          <path d="M-300 212H-274M-300 218H-274M-300 224H-274" stroke="#2a2f3e" stroke-width="2" />
+          <path d="M-294 198V146Q-294 138-286 138H-268V198Z" fill="url(#pr-teal)" />
+          <rect x="-290" y="179" width="18" height="18" rx="2" fill="#f3f5fc" />
+          <g transform="translate(-288 181) scale(0.14)" set:html={markSVG('pr-rl')} />
+          <!-- the cab: a black cage with mesh over the side window, the operator inside -->
+          <path d="M-262 214V134Q-262 126-254 126H-156Q-150 126-150 132V214Z" fill="#11141c" />
+          <rect x="-252" y="136" width="92" height="70" rx="4" fill="url(#pr-glass)" />
+          <circle cx="-200" cy="160" r="9" fill="#05070f" />
+          <path d="M-218 206Q-218 176-200 176Q-182 176-182 206Z" fill="#05070f" />
+          <rect x="-252" y="136" width="92" height="70" rx="4" fill="url(#pr-mesh)" />
+          <rect x="-266" y="119" width="120" height="10" rx="3" fill="#161a27" />
+          <rect x="-216" y="111" width="10" height="8" rx="2" fill="#2a2f3e" />
+          <circle class="beacon" cx="-211" cy="109" r="6" fill="#ffa21f" filter="url(#pr-glow)" />
+          <rect x="-160" y="131" width="9" height="7" rx="2" fill="#fff8e4" filter="url(#pr-glow)" />
+          <!-- lift cylinder, the arm, the tilt cylinder and the quick-attach plate -->
+          <path d="M-272 236L-254 204" stroke="#0e1018" stroke-width="11" stroke-linecap="round" />
+          <path d="M-258 210L-244 182" stroke="#c9cfdd" stroke-width="5" stroke-linecap="round" />
+          <path d="M-298 150L-176 168L-124 218L-114 236L-130 244L-150 230L-186 192L-284 176Z" fill="url(#pr-teal)" />
+          <path d="M-298 150L-176 168L-124 218" stroke="#6fe0e6" stroke-opacity="0.55" stroke-width="2" fill="none" stroke-linejoin="round" />
+          <circle cx="-284" cy="162" r="7" fill="#0d737d" stroke="#08545b" stroke-width="2" />
+          <text x="-262" y="177" fill="#0a4950" font-size="10" font-weight="800" letter-spacing="1.5" font-family="Archivo Variable, sans-serif">ALPIN</text>
+          <path d="M-170 190L-136 208" stroke="#0e1018" stroke-width="8" stroke-linecap="round" />
+          <path d="M-140 206L-118 218" stroke="#c9cfdd" stroke-width="4" stroke-linecap="round" />
+          <rect x="-114" y="206" width="12" height="64" rx="3" fill="#0e1018" />
+          <g data-p="tire" transform="translate(-268 270)" set:html={tire} />
+          <g data-p="tire" transform="translate(-178 270)" set:html={tire} />
+        </g>
+
+        <!-- traffic on the finished street -->
+        <g data-p="car" transform="translate(-400 0)" opacity="0">
+          <path d="M0 290V262Q0 252 12 250L58 246L92 222Q100 216 112 216H170Q182 216 190 224L214 248L246 254Q258 256 258 268V290Z" fill="#1b2147" />
+          <path d="M98 246L118 224H164L184 246Z" fill="#2c3a6e" />
+          <rect x="250" y="262" width="9" height="7" rx="2" fill="#fff8e4" filter="url(#pr-glow)" />
+          <rect x="0" y="260" width="7" height="7" rx="2" fill="#ff2d3d" filter="url(#pr-glow)" />
+          <g fill="#0c0e15"><circle cx="58" cy="286" r="16" /><circle cx="202" cy="286" r="16" /></g>
+          <g fill="#3a4470"><circle cx="58" cy="286" r="6" /><circle cx="202" cy="286" r="6" /></g>
+        </g>
+      </svg>
+      <figcaption id="process-figure-desc" class="sr-only">{t.process.figure}</figcaption>
+    </figure>
+    <ol class="wrap steps">
+      {t.process.steps.map((st, i) => (
+        <li class={i === 0 ? 'step is-active' : 'step'} data-step>
+          <span class="step-num">{i + 1}</span>
+          <div><h3>{st.title}</h3><p>{st.text}</p></div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

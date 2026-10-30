@@ -1,0 +1,36 @@
+---
+import { Image } from 'astro:assets';
+import cut from '../assets/photos/street-cut.jpg';
+import ducts from '../assets/photos/duct-coil.jpg';
+import truck from '../assets/photos/backfill-truck.jpg';
+import kirkuk from '../assets/photos/kirkuk-ducts.jpg';
+import { SERVICES } from '../data/site.js';
+
+const { t } = Astro.props;
+// the job photos are portrait, so each crop is placed on what matters in it; wide tiles alternate sides
+const MEDIA = {
+  trenching: { src: cut, at: 'center 58%', wide: true },
+  fiber: { src: ducts, at: 'center 55%' },
+  backfill: { src: truck, at: 'center 42%' },
+  utilities: { src: kirkuk, at: 'center 50%', wide: true },
+};
+---
+<section class="section services" id="services">
+  <div class="wrap services-grid">
+    <div class="services-head" data-reveal>
+      <h2>{t.services.title}</h2>
+      <p>{t.services.intro}</p>
+    </div>
+    <ul class="tiles" data-reveal>
+      {SERVICES.map(key => (
+        <li class={MEDIA[key].wide ? 'tile wide' : 'tile'}>
+          <div class="tile-media">
+            <Image src={MEDIA[key].src} alt="" widths={[420, 720, 1200]} sizes={MEDIA[key].wide ? '(min-width: 900px) 46vw, 92vw' : '(min-width: 900px) 23vw, 46vw'} style={`object-position:${MEDIA[key].at}`} />
+          </div>
+          <h3>{t.services.items[key].title}</h3>
+          <p>{t.services.items[key].text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

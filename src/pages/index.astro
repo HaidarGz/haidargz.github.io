@@ -1,0 +1,37 @@
+---
+// The bare domain picks a language: the visitor's earlier choice, else their browser language, else English.
+import { LANGS } from '../i18n/index.js';
+import { SITE_URL } from '../data/site.js';
+
+const langs = Object.keys(LANGS);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Red Lavender</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {langs.map(code => <link rel="alternate" hreflang={code} href={`${SITE_URL}/${code}/`} />)}
+    <link rel="alternate" hreflang="x-default" href={`${SITE_URL}/`} />
+    <script is:inline define:vars={{ langs }}>
+      let pick;
+      try { pick = localStorage.getItem('rl-lang'); } catch {}
+      if (!langs.includes(pick)) {
+        for (const tag of navigator.languages || [navigator.language || '']) {
+          const t = tag.toLowerCase();
+          const code = t.startsWith('ckb') || t.startsWith('ku') ? 'ckb' : t.slice(0, 2); // Sorani is what Erbil reads
+          if (langs.includes(code)) { pick = code; break; }
+        }
+      }
+      location.replace(`/${pick || 'en'}/`);
+    </script>
+    <style>
+      body { margin: 0; min-height: 100svh; display: grid; place-items: center; background: #060a1e; color: #eef1fb; font-family: system-ui, sans-serif; }
+      a { margin: 0 0.6rem; color: inherit; }
+    </style>
+  </head>
+  <body>
+    <nav>{Object.entries(LANGS).map(([code, l]) => <a href={`/${code}/`} hreflang={code} lang={code}>{l.label}</a>)}</nav>
+  </body>
+</html>

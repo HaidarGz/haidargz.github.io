@@ -1,0 +1,46 @@
+---
+import Logo from './Logo.astro';
+import { LANGS } from '../i18n/index.js';
+
+const { lang, t } = Astro.props;
+const LINKS = ['about', 'services', 'process', 'catalog', 'projects', 'contact'];
+const langLinks = Object.entries(LANGS);
+---
+<header class="site-header" data-header>
+  <div class="wrap bar">
+    <a class="brand" href={`/${lang}/`} aria-label={t.nav.home}><Logo variant="lockup" /></a>
+    <nav class="nav" aria-label={t.nav.menu}>
+      <ul>{LINKS.map(id => <li><a href={`#${id}`}>{t.nav[id]}</a></li>)}</ul>
+    </nav>
+    <div class="tools">
+      <details class="lang">
+        <summary aria-label={`${t.nav.language}: ${LANGS[lang].label}`}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.6 2.8 2.6 15.2 0 18M12 3c-2.6 2.8-2.6 15.2 0 18" /></svg>
+          <span>{LANGS[lang].label}</span>
+        </summary>
+        <ul>
+          {langLinks.map(([code, l]) => (
+            <li><a class="lang-link" href={`/${code}/`} hreflang={code} lang={code} dir={l.dir} data-lang={code} aria-current={code === lang ? 'true' : undefined}>{l.label}</a></li>
+          ))}
+        </ul>
+      </details>
+      <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>
+        <span class="sr-only">{t.nav.menu}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<!-- outside the header: the header's backdrop-filter and transform would trap a fixed overlay inside it -->
+<div class="mobile-menu" id="mobile-menu" data-menu data-lenis-prevent hidden>
+  <button class="icon-btn menu-close" type="button" data-menu-close>
+    <span class="sr-only">{t.nav.close}</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+  </button>
+  <ul class="menu-links">{LINKS.map(id => <li><a href={`#${id}`}>{t.nav[id]}</a></li>)}</ul>
+  <ul class="menu-langs">
+    {langLinks.map(([code, l]) => (
+      <li><a class="chip" href={`/${code}/`} hreflang={code} lang={code} dir={l.dir} data-lang={code} aria-current={code === lang ? 'true' : undefined}>{l.label}</a></li>
+    ))}
+  </ul>
+</div>

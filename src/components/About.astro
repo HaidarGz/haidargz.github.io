@@ -1,0 +1,21 @@
+---
+import { Image } from 'astro:assets';
+import fence from '../assets/photos/fence-line.jpg';
+
+const { t } = Astro.props;
+---
+<section class="section about" id="about">
+  <div class="about-panel">
+    <div data-reveal><h2 class="about-statement">{t.about.title}</h2></div>
+    <figure class="about-photo">
+      <Image src={fence} alt={t.about.photoAlt[0]} widths={[480, 760, 1100]} sizes="(min-width: 900px) 38vw, 86vw" />
+    </figure>
+    <div class="about-text" data-reveal>
+      {t.about.body.map((p, i) => <div><h3>{t.about.heads[i]}</h3><p>{p}</p></div>)}
+      <ul class="values">
+        {t.about.values.map(v => <li><span><strong>{v.title}.</strong> {v.text}</span></li>)}
+      </ul>
+      <a class="btn btn-primary" href="#process">{t.about.cta}</a>
+    </div>
+  </div>
+</section>

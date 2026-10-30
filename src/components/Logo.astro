@@ -1,0 +1,37 @@
+---
+// The company logo. The mark is geometry (src/assets/logo/mark.js); the wordmark is traced from images/1.jpeg and
+// the tagline is Montserrat set as paths (scripts/prepare-assets.mjs), all in the logo image's own coordinates.
+// On the dark site LAVENDER and the tagline are reversed to light colours, since the logo's navy vanishes on
+// navy; theme="light" keeps the original colours.
+import logo from '../assets/logo/paths.js';
+import { markSVG } from '../assets/logo/mark.js';
+
+interface Props { variant?: 'lockup' | 'stacked' | 'mark' | 'word'; theme?: 'dark' | 'light'; class?: string; title?: string }
+const { variant = 'lockup', theme = 'dark', class: className, title } = Astro.props;
+const { mark: m, word: w, tag } = logo;
+const ink = theme === 'dark' ? { red: '#f20000', navy: '#f3f5fc', tag: '#aeb8d6' } : { red: '#d60000', navy: '#264878', tag: '#264878' };
+const id = `rl${Math.random().toString(36).slice(2, 8)}`;
+
+const tx = Math.min(w.box[0], tag.box[0]), ty = w.box[1]; // the text block: wordmark over tagline
+const tw = Math.max(w.box[2], tag.box[2]) - tx, th = tag.box[3] - ty, gap = th * 0.3;
+const viewBox = {
+  lockup: `0 0 ${th + gap + tw} ${th}`, // the mark as tall as the two lines of text, beside them
+  stacked: `${tx - 2} ${m.y - 2} ${tw + 4} ${tag.box[3] - m.y + 4}`, // the logo's original arrangement
+  mark: '0 0 100 100',
+  word: `${w.box[0]} ${w.box[1]} ${w.box[2] - w.box[0]} ${w.box[3] - w.box[1]}`,
+}[variant];
+const markAt = variant === 'lockup' ? `scale(${th / 100})` : variant === 'stacked' ? `translate(${m.x} ${m.y}) scale(${m.size / 100})` : undefined;
+const textAt = variant === 'lockup' ? `translate(${th + gap - tx} ${-ty})` : undefined;
+---
+<svg class={className} viewBox={viewBox} xmlns="http://www.w3.org/2000/svg" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : 'true'}>
+  {variant !== 'word' && <g transform={markAt} set:html={markSVG(id)} />}
+  {variant !== 'mark' && (
+    <g transform={textAt}>
+      <g transform={`translate(${w.x} ${w.y}) scale(${w.scale})`}>
+        <path fill={ink.red} fill-rule="evenodd" d={w.red} />
+        <path fill={ink.navy} fill-rule="evenodd" d={w.navy} />
+      </g>
+      {variant !== 'word' && <path transform={`translate(${tag.x} ${tag.y})`} fill={ink.tag} d={tag.d} />}
+    </g>
+  )}
+</svg>

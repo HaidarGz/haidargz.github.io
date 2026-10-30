@@ -1,0 +1,65 @@
+---
+// Contact opens on the city's fiber network at night (it settles into place as it scrolls in, src/scripts/motion.js),
+// then the phones and a form that hands the message to WhatsApp, cut apart along a marked line, then the yard's map.
+import { Image } from 'astro:assets';
+import art from '../../concepts/city-network.png';
+import { PHONES, WHATSAPP, MAP_URL, MAP_PIN, SERVICES } from '../data/site.js';
+
+const { t } = Astro.props;
+const f = t.contact.form;
+const { lat, lon } = MAP_PIN;
+const osm = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.012},${lat - 0.0065},${lon + 0.012},${lat + 0.0065}&layer=mapnik&marker=${lat},${lon}`;
+---
+<section class="contact" id="contact">
+  <div class="contact-sky">
+    <Image class="contact-sky-art" src={art} alt="" widths={[960, 1600, 2400]} sizes="100vw" data-network-art />
+    <div class="wrap contact-sky-copy" data-reveal>
+      <h2>{t.contact.title}</h2>
+      <p>{t.contact.intro}</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="coupon" data-reveal>
+      <div class="coupon-copy">
+        <h3>{t.contact.phones}</h3>
+        <ul class="phones">
+          {PHONES.map(p => (
+            <li>
+              <a class="phone-num" href={`tel:${p.tel}`}>{p.display}</a>
+              <span class="phone-actions">
+                <a class="chip" href={`tel:${p.tel}`}>{t.contact.call}</a>
+                <a class="chip" href={`https://wa.me/${p.tel.slice(1)}`} target="_blank" rel="noopener">{t.contact.whatsapp}</a>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <form class="coupon-form" data-whatsapp-form data-number={WHATSAPP} data-greeting={f.greeting} data-labels={JSON.stringify([f.name, f.phone, f.service])} aria-labelledby="coupon-form-title">
+        <h3 id="coupon-form-title">{f.title}</h3>
+        <label class="field"><span>{f.name}</span><input name="name" required autocomplete="name" /></label>
+        <label class="field"><span>{f.phone}</span><input name="phone" type="tel" autocomplete="tel" dir="ltr" /></label>
+        <label class="field">
+          <span>{f.service}</span>
+          <select name="service">
+            <option value="">{f.servicePlaceholder}</option>
+            {SERVICES.map(k => <option>{t.services.items[k].title}</option>)}
+            <option>{f.other}</option>
+          </select>
+        </label>
+        <label class="field"><span>{f.message}</span><textarea name="message" required rows="4"></textarea></label>
+        <button class="coupon-send" type="submit">{f.send}</button>
+        <p class="form-note">{f.note}</p>
+      </form>
+    </div>
+    <div class="visit" data-reveal>
+      <div class="visit-copy">
+        <h3>{t.contact.visit}</h3>
+        <address>{t.contact.address}</address>
+        <a class="text-link" href={MAP_URL} target="_blank" rel="noopener">{t.contact.map}</a>
+      </div>
+      <div class="visit-map">
+        <iframe src={osm} title={t.contact.address} loading="lazy" referrerpolicy="no-referrer"></iframe>
+      </div>
+    </div>
+  </div>
+</section>

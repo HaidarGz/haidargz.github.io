@@ -1,0 +1,48 @@
+---
+// Holds the company catalog PDF. Until CATALOG_PDF is set in src/data/site.js it says the catalog is coming.
+import { Image } from 'astro:assets';
+import Logo from './Logo.astro';
+import cover from '../assets/photos/two-machines.jpg';
+import { CATALOG_PDF } from '../data/site.js';
+
+const { t } = Astro.props;
+---
+<section class="section catalog" id="catalog">
+  <div class="wrap catalog-grid">
+    <a
+      class="catalog-book"
+      href={CATALOG_PDF ?? '#contact'}
+      target={CATALOG_PDF ? '_blank' : undefined}
+      rel={CATALOG_PDF ? 'noopener' : undefined}
+      aria-label={CATALOG_PDF ? t.catalog.view : t.catalog.contact}
+    >
+      <div class="book">
+        <div class="book-back"></div>
+        <div class="book-pages"></div>
+        <div class="book-cover">
+          <Image src={cover} alt="" widths={[480, 800]} sizes="(min-width: 900px) 22rem, 80vw" />
+          <Logo variant="stacked" class="book-logo" />
+          <span class="book-title">{t.catalog.cover}</span>
+        </div>
+      </div>
+    </a>
+    <div class="catalog-copy" data-reveal>
+      <h2>{t.catalog.title}</h2>
+      {CATALOG_PDF ? (
+        <div class="catalog-actions">
+          <a class="btn btn-primary" href={CATALOG_PDF} target="_blank" rel="noopener">{t.catalog.view}</a>
+          <a class="btn btn-quiet" href={CATALOG_PDF} download>{t.catalog.download}</a>
+        </div>
+      ) : (
+        <>
+          <p class="catalog-soon">{t.catalog.soon}</p>
+          <p>{t.catalog.text}</p>
+          <a class="btn btn-quiet" href="#contact">{t.catalog.contact}</a>
+        </>
+      )}
+    </div>
+  </div>
+  {CATALOG_PDF && (
+    <div class="wrap"><iframe class="catalog-frame" src={`${CATALOG_PDF}#view=FitH`} title={t.catalog.title} loading="lazy"></iframe></div>
+  )}
+</section>

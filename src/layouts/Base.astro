@@ -1,0 +1,44 @@
+---
+import '@fontsource-variable/archivo/standard.css';
+import '@fontsource-variable/noto-kufi-arabic';
+import '@fontsource-variable/noto-sans-arabic';
+import '../styles/global.css';
+import { LANGS } from '../i18n/index.js';
+import { SITE_URL } from '../data/site.js';
+
+const { lang } = Astro.props;
+const { dir, dict: t } = LANGS[lang];
+const url = `${SITE_URL}/${lang}/`;
+---
+<!doctype html>
+<html lang={lang} dir={dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <link rel="canonical" href={url} />
+    {Object.keys(LANGS).map(code => <link rel="alternate" hreflang={code} href={`${SITE_URL}/${code}/`} />)}
+    <link rel="alternate" hreflang="x-default" href={`${SITE_URL}/`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#060a1e" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Red Lavender" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={`${SITE_URL}/og.jpg`} />
+    <meta property="og:locale" content={t.meta.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip" href="#main">{t.nav.skip}</a>
+    <slot />
+    <script>
+      import '../scripts/site.js';
+      import '../scripts/motion.js';
+    </script>
+  </body>
+</html>
