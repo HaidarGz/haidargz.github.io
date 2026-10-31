@@ -92,6 +92,19 @@ p { margin: 0; }
 [data-reveal] > :nth-child(4) { transition-delay: 0.24s; }
 [data-reveal] > :nth-child(n + 5) { transition-delay: 0.32s; }
 
+/* Photographs open the way the road does: a hot line, then the slot widens to the whole picture. */
+[data-cut] { position: relative; container-type: inline-size; }
+.reveal-ready [data-cut] img { clip-path: inset(0 50%); transition: clip-path 1.25s var(--ease) 0.34s, transform 1.2s var(--ease); }
+.reveal-ready [data-cut].is-in img { clip-path: inset(0); }
+.reveal-ready [data-cut]::before, .reveal-ready [data-cut]::after {
+  content: ''; position: absolute; inset-block: 0; left: 50%; z-index: 1; width: 2px; margin-left: -1px;
+  background: #ff5b65; box-shadow: 0 0 14px 2px rgba(225, 10, 23, 0.8); /* taste-skill-ignore: the hot edge of the cut */
+  transform: scaleY(0); transform-origin: top; pointer-events: none;
+  transition: transform 0.42s cubic-bezier(0.45, 0, 0.2, 1), translate 1.25s var(--ease) 0.34s, opacity 0.5s 1s;
+}
+.reveal-ready [data-cut].is-in::before { transform: none; translate: -50cqw 0; opacity: 0; }
+.reveal-ready [data-cut].is-in::after { transform: none; translate: 50cqw 0; opacity: 0; }
+
 /* ---------- Buttons and links: the mark's shape at button size ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.6em;
@@ -226,8 +239,11 @@ p { margin: 0; }
   overflow: hidden; border-radius: calc(var(--leaf) * 1.4) 0; background: var(--ink-2);
 }
 .about-statement { align-self: start; max-width: 12em; }
-.about-photo { grid-column: 1; align-self: end; width: min(100%, 38vw); margin: 0 0 calc(min(100%, 38vw) * -0.25); }
+.about-pics { position: relative; grid-column: 1; align-self: end; margin-bottom: -16%; }
+.about-photo { width: 76%; margin: 0; }
 .about-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--leaf) 0; }
+.about-slot { position: absolute; inset-inline-end: 0; bottom: 26%; width: 40%; margin: 0; padding: 0.5rem; border-radius: calc(var(--leaf) * 0.8 + 0.5rem) 0; background: var(--ink-2); } /* the panel's colour, so it reads as a second print laid on the first */
+.about-slot img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 74%; border-radius: calc(var(--leaf) * 0.8) 0; }
 .about-text { grid-column: 2; grid-row: 1 / span 2; align-self: center; display: grid; gap: 2.5rem; max-width: 28rem; padding-bottom: clamp(2rem, 4vw, 3.75rem); }
 .about-text h3 { margin-bottom: 0.6rem; }
 .values { display: grid; gap: 0.9rem; margin: 0; padding: 0; list-style: none; }
@@ -243,20 +259,20 @@ p { margin: 0; }
 .services-head { position: sticky; top: calc(var(--header) + 2rem); display: grid; gap: 1.25rem; }
 .services-head p { max-width: 30ch; color: var(--muted); }
 .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem 0.75rem; margin: 0; padding: 0; list-style: none; }
-.tile { display: grid; align-content: start; gap: 0.5rem; }
+.tile { display: grid; grid-row: span 3; grid-template-rows: subgrid; gap: 0.5rem; } /* photo, title, text: each row lines up across the tiles */
 .tile.wide { grid-column: span 2; }
 .tile-media { margin-bottom: 0.6rem; overflow: hidden; border-radius: var(--leaf) 0; background: var(--ink-2); }
 .tile-media img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; transition: transform 1.2s var(--ease); }
-.tile.wide .tile-media img { aspect-ratio: 8 / 5; }
+.tile.wide .tile-media img { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; } /* as tall as its row, whatever the gap adds to its width */
 .tile:hover .tile-media img { transform: scale(1.04); }
 .tile p { max-width: 46ch; color: var(--muted); }
 
 /* ---------- Process: a street in Erbil, cut, laid and closed as you scroll ---------- */
 .process { padding-block-start: var(--sect); }
 .process-head { margin-block-end: 0; }
-.process-stage { display: grid; grid-template-rows: auto auto; align-content: center; gap: clamp(1.25rem, 3vh, 2.5rem); min-height: 100svh; padding-block: calc(var(--header) + 0.5rem) 1.5rem; }
+.process-stage { display: grid; grid-template-rows: auto auto; align-content: center; gap: clamp(1.25rem, 3vh, 2.5rem); min-height: 100svh; padding-block: calc(var(--header) + 0.5rem) 1.5rem; overflow: clip; }
 .process-figure { margin: 0; }
-.process-figure svg { width: 100%; height: auto; max-height: 68svh; }
+.process-figure svg { width: 100%; height: auto; max-height: 68svh; overflow: visible; } /* the dive at the end fills the stage, not just the frame */
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem clamp(1rem, 2.5vw, 2.5rem); margin-block: 0; padding: 0; list-style: none; }
 .step { display: grid; grid-template-columns: 2.3rem 1fr; gap: 0.85rem; align-items: start; color: var(--muted); transition: color 0.4s; }
 .step h3 { margin-bottom: 0.35rem; font-size: var(--t-body); font-family: var(--f-display); }
@@ -286,7 +302,42 @@ p { margin: 0; }
   .js .step:not(.is-active) p { display: none; }
 }
 
-/* ---------- Catalog ---------- */
+/* ---------- Inside the line: the cable in 3D, opened by the scroll, the layers named beside it ---------- */
+.inside-stage { position: relative; display: grid; align-items: center; min-height: 100svh; overflow: clip; isolation: isolate; }
+.inside-still, .inside-canvas { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
+.inside-canvas { opacity: 0; transition: opacity 1.2s var(--ease); }
+.inside-stage.is-live .inside-canvas { opacity: 1; }
+:root[dir='rtl'] .inside-still { transform: scaleX(-1); }
+.inside-stage::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(to right, rgba(6, 10, 30, 0.97), rgba(6, 10, 30, 0.86) 34%, transparent 54%); } /* taste-skill-ignore: keeps the words readable over the moving light */
+:root[dir='rtl'] .inside-stage::after { background: linear-gradient(to left, rgba(6, 10, 30, 0.97), rgba(6, 10, 30, 0.86) 34%, transparent 54%); } /* taste-skill-ignore */
+.inside-copy { display: grid; gap: clamp(1.75rem, 4vh, 2.75rem); padding-block: calc(var(--header) + 1rem) 2rem; }
+.inside-head { display: grid; gap: 1rem; max-width: 30rem; }
+.layers { display: grid; align-content: start; gap: 0.5rem; max-width: 28rem; min-height: 15.5rem; margin: 0; padding: 0; list-style: none; } /* one text opens at a time; the height stays put */
+.layer { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: 0 0.85rem; align-items: center; color: var(--muted); transition: color 0.4s; }
+.layer h3 { font-size: var(--t-body); }
+.layer-ring { width: 1.75rem; height: 1.75rem; overflow: visible; }
+.layer-ring circle { fill: none; stroke: currentColor; stroke-width: 1; opacity: 0.4; transition: stroke 0.4s, opacity 0.4s; }
+.layer-ring .dot { fill: currentColor; stroke: none; }
+.layer.is-active { color: var(--text); }
+.layer.is-active .layer-ring [data-on] { stroke: var(--red-hi); stroke-width: 1.6; opacity: 1; }
+.layer.is-active .layer-ring .dot[data-on] { fill: var(--red-hi); stroke: none; }
+.layer-body { grid-column: 2; font-size: var(--t-small); }
+.js .layer-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.5s var(--ease), opacity 0.4s; }
+.js .layer-body p { min-height: 0; overflow: hidden; }
+.js .layer.is-active .layer-body { grid-template-rows: 1fr; opacity: 1; }
+.layer-body p { padding-block-start: 0.25rem; }
+@media (max-width: 900px) {
+  .inside-stage { align-items: stretch; }
+  .inside-stage::after, :root[dir='rtl'] .inside-stage::after { background: linear-gradient(to bottom, rgba(6, 10, 30, 0.8), transparent 30%, transparent 62%, rgba(6, 10, 30, 0.9) 82%); } /* taste-skill-ignore */
+  .inside-copy { align-content: space-between; min-height: 100svh; padding-block: calc(var(--header) + 0.5rem) 1.5rem; }
+  .layers { min-height: 6.5rem; }
+  .js .layer:not(.is-active) { display: none; }
+}
+
+/* ---------- Catalog: the book on the stream of light ---------- */
+.catalog { position: relative; overflow: clip; isolation: isolate; }
+.catalog-art { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen; --quiet: to right; mask-image: linear-gradient(transparent, #000 24%, #000 76%, transparent), linear-gradient(var(--quiet), #000 34%, rgba(0, 0, 0, 0.12) 47%, rgba(0, 0, 0, 0.12) 80%, #000); mask-composite: intersect; } /* taste-skill-ignore: its own black falls away into the page, and the light dims behind the words */
+:root[dir='rtl'] .catalog-art { --quiet: to left; }
 .catalog-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(2.5rem, 6vw, 6rem); align-items: center; }
 .catalog-book { display: grid; place-items: center; padding-block: 1rem; perspective: 1600px; }
 .book { position: relative; width: min(100%, 22rem); aspect-ratio: 1 / 1.414; transform-style: preserve-3d; transform: rotateY(-24deg) rotateX(6deg); transition: transform 1.1s var(--ease); }
@@ -296,6 +347,8 @@ p { margin: 0; }
 .book > * { position: absolute; inset: 0; border-radius: 3px 10px 10px 3px; }
 .book-back { background: #070b1f; transform: translateZ(-18px); }
 .book-pages { inset: 1.2% 0.6% 1.2% 0; background: #e3e6ee; transform: translateZ(-9px); }
+.book-edge { inset: 1.2% auto 1.2% auto; right: -9px; width: 18px; border-radius: 0; background: repeating-linear-gradient(90deg, #d7dbe6 0 1px, #9aa1b6 1px 2px); transform: translateZ(-9px) rotateY(90deg); } /* the block of pages, seen on the open side */
+:root[dir='rtl'] .book-edge { right: auto; left: -9px; }
 .book-cover { overflow: hidden; background: var(--ink-2); transform: translateZ(0); }
 .book-cover img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
 .book-cover::after { content: ''; position: absolute; inset: 0; background: rgba(6, 10, 30, 0.62); } /* scrim so the logo reads on the photo */
@@ -307,20 +360,34 @@ p { margin: 0; }
 .catalog-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
 .catalog-frame { display: block; width: 100%; height: min(85svh, 60rem); margin-top: 3rem; border: 0; border-radius: var(--leaf) 0; background: var(--ink-2); }
 
-/* ---------- In the field: one frame, the photographs change inside it ---------- */
+/* ---------- In the field: a pile of photographs, cut open one at a time ---------- */
 .field-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2.5rem clamp(2rem, 6vw, 7rem); align-items: center; }
 .field-copy { display: grid; gap: 1.25rem; align-content: center; }
 .field-cap { min-height: 3.2em; color: var(--muted); }
-.field-stack { --dir: 1; position: relative; justify-self: center; width: min(100% - 3rem, 40vw, 32rem); aspect-ratio: 4 / 5; margin-block-start: 2.5rem; padding: 0; border: 0; background: none; cursor: pointer; }
+.field-meter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.field-n { font-weight: 650; font-size: var(--t-small); font-variant-numeric: tabular-nums; }
+.field-ticks { display: flex; gap: 0.3rem; }
+.field-ticks i { width: 1.5rem; height: 0.35rem; border-radius: 0.2rem 0; background: var(--c); opacity: 0.26; box-shadow: inset 0 0 0 1px rgba(238, 241, 251, 0.14); transition: opacity 0.3s; }
+.field-ticks .is-on { opacity: 1; }
+.field-hint { color: var(--muted); font-size: var(--t-small); }
+.field-pile { position: relative; justify-self: center; width: min(100% - 3rem, 40vw, 32rem); aspect-ratio: 4 / 5; margin-block-start: 2.5rem; }
+.field-stack { --dir: 1; position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; transform-style: preserve-3d; }
 :root[dir='rtl'] .field-stack { --dir: -1; }
 .field-stack img { /* --i is the card's place in the pile, 0 on top; the top four show */
   position: absolute; inset: 0; z-index: calc(20 - var(--i, 0)); width: 100%; height: 100%; object-fit: cover; border-radius: calc(var(--leaf) * 1.3) 0; background: var(--ink-2);
-  transform: translate(calc(var(--i, 0) * 0.7rem * var(--dir)), calc(var(--i, 0) * -0.7rem)) rotate(calc(var(--i, 0) * 1.8deg * var(--dir)));
+  transform: translate3d(calc(var(--i, 0) * 0.7rem * var(--dir)), calc(var(--i, 0) * -0.7rem), calc(var(--i, 0) * -2.6rem)) rotate(calc(var(--i, 0) * 1.8deg * var(--dir)));
   opacity: clamp(0, 4 - var(--i, 0), 1); filter: brightness(calc(1 - var(--i, 0) * 0.2)); /* deeper in the pile, darker */
-  transition: transform 0.6s var(--ease), opacity 0.45s, filter 0.6s, translate 0.3s var(--ease);
+  box-shadow: 0 1.5rem 3.5rem rgba(2, 4, 14, 0.6);
+  transition: transform 0.75s var(--ease) calc(var(--i, 0) * 30ms), opacity 0.45s, filter 0.6s;
 }
-.field-stack:hover img { translate: 0 -0.3rem; }
-.field-stack img.is-leaving { z-index: 30; transform: translate(calc(75% * var(--dir)), 8%) rotate(calc(16deg * var(--dir))); opacity: 0; }
+.field-stack::after { content: ''; position: absolute; inset: 0; border-radius: calc(var(--leaf) * 1.3) 0; background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, 0.17), transparent 44%); opacity: 0; transform: translateZ(1px); transition: opacity 0.35s; pointer-events: none; } /* taste-skill-ignore: the shine on a print, following the pointer */
+.is-hot .field-stack::after { opacity: 1; }
+.is-hot .field-stack { cursor: none; }
+.field-stack .field-half { position: absolute; inset: 0; width: 100%; height: 100%; visibility: hidden; opacity: 1; filter: none; box-shadow: none; transition: none; pointer-events: none; }
+.field-fx { position: absolute; inset: -30%; width: 160%; height: 160%; max-width: none; transform: translateZ(2px); pointer-events: none; }
+.field-blade { position: absolute; top: 0; left: 0; z-index: 2; width: 4.5rem; height: 4.5rem; margin: -2.25rem 0 0 -2.25rem; opacity: 0; filter: drop-shadow(0 0.4rem 0.6rem rgba(2, 4, 14, 0.65)); transition: opacity 0.2s; pointer-events: none; }
+.is-hot .field-blade { opacity: 1; }
+.is-cutting .blade-spin { animation-duration: 0.14s; }
 
 /* ---------- Contact: the city's network at night, then the form cut out along a marked line ---------- */
 .contact { padding-block-end: var(--sect); }
@@ -331,7 +398,14 @@ p { margin: 0; }
 .contact-sky-copy p { max-width: 40ch; color: #cdd2ec; font-size: var(--t-lead); }
 .coupon { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-top: -6rem; border-radius: calc(var(--leaf) * 1.2) 0; background: var(--ink-2); }
 .coupon-copy, .coupon-form { padding: clamp(1.75rem, 4vw, 3.5rem); }
-.coupon-copy { display: grid; align-content: start; gap: 1.75rem; }
+.coupon-copy { display: grid; align-content: space-between; gap: 2.5rem; }
+.coupon-block { display: grid; gap: 1.5rem; }
+.coupon-mail { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.1rem; }
+.mail-link { font-weight: 650; font-size: clamp(0.95rem, 0.6rem + 1.6vw, var(--t-lead)); text-decoration: none; overflow-wrap: anywhere; } /* one line on a phone */
+.mail-link:hover { color: #fff; }
+.coupon-clock { display: none; color: var(--muted); font-size: var(--t-small); }
+.js .coupon-clock { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.85rem; }
+.clock-time { color: var(--text); font-family: 'Archivo Variable', system-ui, sans-serif; font-stretch: 112%; font-weight: 750; font-size: clamp(2.5rem, 1.6rem + 3vw, 4.5rem); line-height: 1; font-variant-numeric: tabular-nums; }
 .coupon-form { position: relative; display: grid; gap: 0.75rem; border-inline-start: 4px dotted rgba(185, 164, 255, 0.45); }
 .coupon-form h3 { margin-bottom: 0.5rem; }
 .coupon-form::before, .coupon-form::after { content: ''; position: absolute; inset-inline-start: -16px; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); }
@@ -339,7 +413,7 @@ p { margin: 0; }
 .coupon-form::after { bottom: -14px; }
 .phones { display: grid; gap: 1.1rem; margin: 0; padding: 0; list-style: none; }
 .phones li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.1rem; }
-.phone-num { direction: ltr; unicode-bidi: isolate; font-family: 'Archivo Variable', system-ui, sans-serif; font-stretch: 112%; font-weight: 750; font-size: clamp(1.5rem, 1rem + 1.6vw, 2.25rem); text-decoration: none; }
+.phone-num { direction: ltr; unicode-bidi: isolate; font-family: 'Archivo Variable', system-ui, sans-serif; font-stretch: 112%; font-weight: 750; font-size: clamp(1.5rem, 1rem + 1.6vw, 2.25rem); font-variant-numeric: tabular-nums; text-decoration: none; }
 .phone-actions { display: flex; gap: 0.5rem; }
 .chip { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 1.1rem; border-radius: 0.85rem 0; background: var(--ink-3); color: #fff; font-size: var(--t-small); font-weight: 600; text-decoration: none; transition: background-color 0.25s; }
 .chip:hover { background: #22306a; }
@@ -362,10 +436,20 @@ p { margin: 0; }
 .visit-map { overflow: hidden; aspect-ratio: 16 / 10; border-radius: var(--leaf) 0; background: var(--ink-2); }
 .visit-map iframe { width: 100%; height: 100%; border: 0; filter: invert(1) hue-rotate(180deg) saturate(0.55) brightness(0.92) contrast(0.92); }
 
+/* ---------- The route meter: the page read as a route, measured in the margin ---------- */
+.route { position: fixed; inset-block: 30vh; inset-inline-end: 0.6rem; z-index: 40; display: grid; grid-template-rows: 1fr auto; justify-items: center; gap: 0.6rem; pointer-events: none; }
+.route-rule { position: relative; width: 7px; background: repeating-linear-gradient(to bottom, rgba(238, 241, 251, 0.3) 0 1px, transparent 1px 8px); }
+.route-rule i { position: absolute; top: calc(var(--along, 0) * 100%); left: -2px; width: 11px; height: 3px; margin-top: -1px; border-radius: 1px; background: var(--red-hi); }
+.route-m { color: var(--muted); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; white-space: nowrap; writing-mode: vertical-rl; }
+@media (max-width: 900px) { .route { display: none; } }
+
 /* ---------- Footer: the name returns at full width ---------- */
 .site-footer { position: relative; margin-top: var(--sect); padding-block: clamp(3.5rem, 6vw, 5.5rem) 2rem; background: #040719; }
-.ribbon { position: absolute; inset: 0 0 auto; display: flex; height: 6px; }
+.ribbon { position: absolute; inset: 0 0 auto; display: flex; height: 6px; overflow: hidden; }
 .ribbon span { flex: 1; }
+.ribbon::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 14rem; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent); animation: ribbon-light 7s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; } /* taste-skill-ignore: light running along the fibers */
+@keyframes ribbon-light { from { transform: translateX(-14rem); } to { transform: translateX(110vw); } }
+.footer-mask { overflow: clip; }
 .footer-word { width: 100%; height: auto; }
 .footer-slogan { margin-top: 1.5rem; font-family: var(--f-display); font-stretch: var(--stretch); font-weight: 650; font-size: var(--t-lead); color: var(--muted); }
 .footer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem; margin-top: clamp(3rem, 6vw, 5rem); }
@@ -380,11 +464,13 @@ p { margin: 0; }
 @media (max-width: 900px) {
   .about-panel, .services-grid, .catalog-grid, .field-grid, .coupon, .visit { grid-template-columns: minmax(0, 1fr); }
   .about-text { grid-column: 1; grid-row: auto; padding-bottom: 0; }
-  .about-photo { order: 1; width: 86%; justify-self: center; margin-bottom: -22%; } /* last, so the panel's edge crops it, not the text */
+  .about-pics { order: 1; grid-column: 1; margin-bottom: -18%; } /* last, so the panel's edge crops it, not the text */
   .services-head { position: static; }
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 0.6rem; }
   .tile.wide { grid-column: span 2; }
-  .field-stack { width: min(100% - 3rem, 72vw, 30rem); }
+  .tile.wide .tile-media { aspect-ratio: 8 / 5; } /* alone on its row here, so it sets its own height */
+  .catalog-art { mask-image: linear-gradient(transparent, #000 10%, #000 42%, rgba(0, 0, 0, 0.12) 58%); } /* the book above, the words below */
+  .field-pile { width: min(100% - 3rem, 72vw, 30rem); }
   .coupon-form { border-inline-start: 0; border-top: 4px dotted rgba(185, 164, 255, 0.45); }
   .coupon-form::before, .coupon-form::after { top: -17px; bottom: auto; }
   .coupon-form::before { inset-inline-start: -14px; }

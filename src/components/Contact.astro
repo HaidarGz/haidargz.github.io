@@ -3,7 +3,7 @@
 // then the phones and a form that hands the message to WhatsApp, cut apart along a marked line, then the yard's map.
 import { Image } from 'astro:assets';
 import art from '../../concepts/city-network.png';
-import { PHONES, WHATSAPP, MAP_URL, MAP_PIN, SERVICES } from '../data/site.js';
+import { PHONES, WHATSAPP, EMAIL, MAP_URL, MAP_PIN, SERVICES } from '../data/site.js';
 
 const { t } = Astro.props;
 const f = t.contact.form;
@@ -21,6 +21,7 @@ const osm = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.012}
   <div class="wrap">
     <div class="coupon" data-reveal>
       <div class="coupon-copy">
+        <div class="coupon-block">
         <h3>{t.contact.phones}</h3>
         <ul class="phones">
           {PHONES.map(p => (
@@ -33,6 +34,17 @@ const osm = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.012}
             </li>
           ))}
         </ul>
+        </div>
+        {EMAIL && (
+          <div class="coupon-block">
+            <h3>{t.contact.email}</h3>
+            <div class="coupon-mail">
+              <a class="mail-link" href={`mailto:${EMAIL}`} dir="ltr">{EMAIL}</a>
+              <a class="chip" href={`mailto:${EMAIL}`}>{t.contact.write}</a>
+            </div>
+          </div>
+        )}
+        <p class="coupon-clock"><span>{t.contact.time}</span> <time class="clock-time" dir="ltr" data-erbil-time></time></p>
       </div>
       <form class="coupon-form" data-whatsapp-form data-number={WHATSAPP} data-greeting={f.greeting} data-labels={JSON.stringify([f.name, f.phone, f.service])} aria-labelledby="coupon-form-title">
         <h3 id="coupon-form-title">{f.title}</h3>

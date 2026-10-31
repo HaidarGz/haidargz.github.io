@@ -64,6 +64,18 @@ export default {
     ],
     figure: "A street in Erbil seen from the side at dusk: a crew marks the route, a teal Alpin skid steer with a wheel saw cuts a narrow slot, a duct is laid and lights up, and the slot is filled and sealed while traffic moves again.",
   },
+  inside: {
+    title: "Inside the line",
+    intro: "What we put under your street, layer by layer.",
+    alt: "A fiber optic cable cut open: a black jacket, a gold ring of strength yarn and six colored tubes, each holding twelve glowing fibers.",
+    layers: [
+      { title: "HDPE duct", text: "The black pipe we lay in the trench. It keeps water and soil away from the cable." },
+      { title: "Outer jacket", text: "A tough sheath that protects the whole cable as it is pulled through the duct." },
+      { title: "Strength yarn", text: "Aramid yarn takes the strain, so the glass inside never has to." },
+      { title: "Color-coded tubes", text: "Every tube has its own color, so technicians can find the right fiber." },
+      { title: "Glass fibers", text: "Strands as thin as a hair, carrying data as pulses of light." },
+    ],
+  },
   catalog: {
     title: "Catalog",
     soon: "Our full catalog is on its way",
@@ -77,6 +89,7 @@ export default {
     title: "In the field",
     intro: "Our crews at work on real streets.",
     next: "Next photo",
+    hint: "Press a photo to cut to the next one",
     captions: {
       "trench-curb": "A fresh micro trench beside the curb",
       "street-cut": "Cutting through a residential street",
@@ -95,6 +108,9 @@ export default {
     phones: "Phone and WhatsApp",
     call: "Call",
     whatsapp: "WhatsApp",
+    email: "Email",
+    write: "Write to us",
+    time: "Now in Erbil",
     visit: "Visit us",
     address: "Baharka Road, Kark village, Erbil, Kurdistan Region, Iraq",
     map: "Open in Google Maps",

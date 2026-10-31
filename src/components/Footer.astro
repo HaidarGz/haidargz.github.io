@@ -1,24 +1,25 @@
 ---
 import Logo from './Logo.astro';
 import { LANGS } from '../i18n/index.js';
-import { PHONES } from '../data/site.js';
+import { PHONES, EMAIL, FIBER_COLOURS } from '../data/site.js';
 
 const { lang, t } = Astro.props;
 const LINKS = ['about', 'services', 'process', 'catalog', 'projects', 'contact'];
-// The TIA-598 fiber colour code, in the order every fiber technician knows it
-const FIBER_COLOURS = ['#1f5fff', '#ff7d12', '#1fae4b', '#8a5428', '#8b939c', '#f1f1ee', '#e3141b', '#151515', '#ffd21f', '#8a2be2', '#ff8fb1', '#22d3d3'];
 ---
 <footer class="site-footer">
   <div class="ribbon" aria-hidden="true">{FIBER_COLOURS.map(c => <span style={`background:${c}`} />)}</div>
   <div class="wrap">
-    <Logo variant="word" class="footer-word" title={t.footer.company} />
+    <div class="footer-mask"><Logo variant="word" class="footer-word" title={t.footer.company} /></div>
     <p class="footer-slogan">{t.footer.slogan}</p>
     <div class="footer-grid">
       <nav aria-label={t.nav.menu}>
         <ul>{LINKS.map(id => <li><a href={`#${id}`}>{t.nav[id]}</a></li>)}</ul>
       </nav>
       <div>
-        <ul>{PHONES.map(p => <li><a href={`tel:${p.tel}`} dir="ltr">{p.display}</a></li>)}</ul>
+        <ul>
+          {PHONES.map(p => <li><a href={`tel:${p.tel}`} dir="ltr">{p.display}</a></li>)}
+          {EMAIL && <li><a href={`mailto:${EMAIL}`} dir="ltr">{EMAIL}</a></li>}
+        </ul>
         <address style="margin-top:1rem;max-width:30ch">{t.contact.address}</address>
       </div>
       <ul>

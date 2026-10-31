@@ -1,0 +1,36 @@
+---
+// What goes in the ground: the cable in 3D (src/scripts/cable.js), seen end on and opened layer by layer as the page
+// scrolls. The still picture stands in until the scene draws, and for anyone who asked for less motion.
+import { Image } from 'astro:assets';
+import core from '../../concepts/cable-core.png';
+
+const { t } = Astro.props;
+const TUBES = Array.from({ length: 6 }, (_, i) => [14 + 4.2 * Math.cos((i * Math.PI) / 3), 14 + 4.2 * Math.sin((i * Math.PI) / 3)]);
+---
+<section class="inside" id="inside" aria-labelledby="inside-title">
+  <div class="inside-stage" data-inside>
+    <Image class="inside-still" src={core} alt={t.inside.alt} widths={[960, 1600]} sizes="100vw" />
+    <canvas class="inside-canvas" aria-hidden="true"></canvas>
+    <div class="wrap inside-copy">
+      <div class="inside-head">
+        <h2 id="inside-title">{t.inside.title}</h2>
+        <p class="lead">{t.inside.intro}</p>
+      </div>
+      <ol class="layers">
+        {t.inside.layers.map((layer, i) => (
+          <li class="layer" data-step>
+            <svg class="layer-ring" viewBox="0 0 28 28" aria-hidden="true">
+              <circle cx="14" cy="14" r="13" data-on={i === 0 ? 'y' : undefined} />
+              <circle cx="14" cy="14" r="10.6" data-on={i === 1 ? 'y' : undefined} />
+              <circle cx="14" cy="14" r="8.6" data-on={i === 2 ? 'y' : undefined} />
+              {TUBES.map(([x, y]) => <circle cx={x.toFixed(2)} cy={y.toFixed(2)} r="1.9" data-on={i === 3 ? 'y' : undefined} />)}
+              {TUBES.map(([x, y]) => <circle class="dot" cx={x.toFixed(2)} cy={y.toFixed(2)} r="0.7" data-on={i === 4 ? 'y' : undefined} />)}
+            </svg>
+            <h3>{layer.title}</h3>
+            <div class="layer-body"><p>{layer.text}</p></div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>

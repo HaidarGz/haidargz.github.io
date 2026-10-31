@@ -11,6 +11,10 @@ export const MAP_URL = 'https://maps.google.com/?cid=11325095971039575';
 export const MAP_PIN = { lat: 36.2613756, lon: 44.0384524 };
 
 export const CATALOG_PDF = null; // set to '/catalog.pdf' once the file is in public/
+export const EMAIL = null; // the company's address; the contact card and footer show it once it is set
 
 export const SERVICES = ['trenching', 'fiber', 'backfill', 'utilities'];
 export const PHOTOS = ['street-cut', 'fence-line', 'trench-curb', 'two-machines', 'duct-coil', 'kirkuk-ducts', 'market-street', 'main-road', 'backfill-truck'];
+
+// The TIA-598 fiber colour code, in the order every fiber technician knows it
+export const FIBER_COLOURS = ['#1f5fff', '#ff7d12', '#1fae4b', '#8a5428', '#8b939c', '#f1f1ee', '#e3141b', '#151515', '#ffd21f', '#8a2be2', '#ff8fb1', '#22d3d3'];

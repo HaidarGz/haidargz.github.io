@@ -1,15 +1,20 @@
-// Interface behaviour that needs no animation library: header state, mobile menu, language memory,
-// sections rising into view, the pile of field photographs, and the contact form that hands the message to WhatsApp.
+// Interface behaviour that needs no animation library: header state, route meter, mobile menu, language memory, sections
+// rising into view and photographs opening from a slot, the clock in Erbil, and the form that hands off to WhatsApp.
 const root = document.documentElement;
 
-const header = document.querySelector('[data-header]');
+const header = document.querySelector('[data-header]'), route = document.querySelector('[data-route]');
+const metres = route.querySelector('[data-route-m]'), ROUTE_LENGTH = 1200; // the page, read as a route of this many metres
 let lastY = scrollY;
-addEventListener('scroll', () => {
-  const y = scrollY;
+function onScroll() {
+  const y = scrollY, share = Math.min(1, y / (root.scrollHeight - innerHeight));
   header.classList.toggle('is-scrolled', y > 24);
   header.classList.toggle('is-hidden', y > lastY && y > 400 && !header.querySelector('.lang[open]'));
   lastY = y;
-}, { passive: true });
+  route.style.setProperty('--along', share);
+  metres.textContent = String(Math.round(share * ROUTE_LENGTH)).padStart(4, '0');
+}
+addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
 const menu = document.querySelector('[data-menu]'), openBtn = document.querySelector('[data-menu-open]');
 function setMenu(open, returnFocus = true) {
@@ -32,31 +37,22 @@ document.addEventListener('click', e => {
 
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Each section's parts rise into place once as it arrives; without script or with reduced motion they are simply there.
+// Each section's parts rise into place once as it arrives, and photographs open from a narrow slot, the way the road
+// does; without script or with reduced motion they are simply there.
 if (!still) {
   root.classList.add('reveal-ready');
   const seen = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-in'); seen.unobserve(entry.target); }
   }, { rootMargin: '0px 0px -12% 0px' });
-  document.querySelectorAll('[data-reveal]').forEach(el => seen.observe(el));
+  document.querySelectorAll('[data-reveal], [data-cut]').forEach(el => seen.observe(el));
 }
 
-// In the field: the crews' photographs lie in a pile. Pressing it sends the top card away to the bottom of the pile
-// and the one beneath comes up, its caption read out.
-const pile = document.querySelector('[data-field]');
-if (pile) {
-  const cards = [...pile.querySelectorAll('img')], cap = document.querySelector('[data-field-cap]');
-  const layout = () => cards.forEach((card, i) => card.style.setProperty('--i', i));
-  let busy = false;
-  pile.addEventListener('click', () => {
-    if (busy) return;
-    busy = true;
-    const top = cards.shift();
-    top.classList.add('is-leaving');
-    layout(); // the rest move up a place while the top card flies off
-    cap.textContent = cards[0].dataset.caption;
-    setTimeout(() => { top.classList.remove('is-leaving'); cards.push(top); layout(); busy = false; }, still ? 0 : 450);
-  });
+const clock = document.querySelector('[data-erbil-time]');
+if (clock) {
+  const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baghdad' }); // Erbil keeps Baghdad time
+  const tick = () => { clock.textContent = time.format(new Date()); };
+  tick();
+  setInterval(tick, 20000);
 }
 
 const form = document.querySelector('[data-whatsapp-form]');

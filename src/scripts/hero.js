@@ -8,7 +8,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const FOV = 40, CAM_Z = 12, SEG = 40;
 const STOPS = [[0, '#ff1f2e'], [0.38, '#ff2f97'], [0.72, '#b7a1ff'], [1, '#4f6dff']].map(([p, c]) => [p, new THREE.Color(c)]);
-function brand(u, out) {
+export function brand(u, out) {
   u = Math.min(1, Math.max(0, u));
   let i = 1;
   while (i < STOPS.length - 1 && u > STOPS[i][0]) i++;
@@ -28,7 +28,7 @@ const SWAY = /* glsl */ `
     return p;
   }`;
 
-function materials(uniforms) {
+export function materials(uniforms) {
   const additive = { uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending };
   const lines = new THREE.ShaderMaterial({
     ...additive,
@@ -42,7 +42,7 @@ function materials(uniforms) {
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */ `
-      uniform float uTime; uniform float uLevel;
+      uniform float uTime; uniform float uLevel; uniform float uWave;
       varying float vT; varying float vSeed; varying vec3 vCol; varying float vFog;
       void main() {
         float glow = 0.05 + 0.45 * vT * vT;              // side glow, brighter toward the lit tip
@@ -50,7 +50,8 @@ function materials(uniforms) {
         float d = head - vT;
         float pulse = d >= 0.0 ? exp(-d * 18.0) : exp(-d * d * 4000.0);
         pulse *= step(0.6, fract(vSeed * 3.97));         // only some strands carry pulses
-        gl_FragColor = vec4(vCol * (glow + pulse * 1.8) * vFog * uLevel, 1.0);
+        float wave = exp(-pow(vT - uWave, 2.0) * 240.0); // a press sends one bright front up every strand
+        gl_FragColor = vec4(vCol * (glow + pulse * 1.8 + wave * 0.9) * vFog * uLevel, 1.0);
       }`,
   });
   const tips = new THREE.ShaderMaterial({
@@ -105,7 +106,7 @@ function materials(uniforms) {
 
 // The canvas is ACES tone mapped, which crushes dark colours. Run the page navy backwards through three's
 // ACESFilmicToneMapping (constants from its tonemapping shader) so the background comes out as the page's own.
-function untoned(hex) {
+export function untoned(hex) {
   const c = new THREE.Color(hex), v = new THREE.Vector3(c.r, c.g, c.b);
   v.applyMatrix3(new THREE.Matrix3().set(1.60475, -0.53108, -0.07367, -0.10208, 1.10813, -0.00605, -0.00327, -0.07276, 1.07602).invert());
   for (const k of ['x', 'y', 'z']) { // RRTAndODTFit is a ratio of quadratics, so each channel inverts with the quadratic formula
@@ -190,7 +191,7 @@ export function startHero(hero, canvas) {
   if (rtl) group.scale.x = -1; // the bundle sits on the far side from where the text starts
   scene.add(group);
 
-  const uniforms = { uTime: { value: 0 }, uPointer: { value: new THREE.Vector2() }, uLevel: { value: 1 }, uPixel: { value: renderer.getPixelRatio() } };
+  const uniforms = { uTime: { value: 0 }, uPointer: { value: new THREE.Vector2() }, uLevel: { value: 1 }, uWave: { value: -1 }, uPixel: { value: renderer.getPixelRatio() } };
   const mats = materials(uniforms);
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: small ? 0 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
@@ -214,6 +215,7 @@ export function startHero(hero, canvas) {
 
   const pointer = new THREE.Vector2(), target = new THREE.Vector2();
   addEventListener('pointermove', e => target.set((e.clientX / innerWidth) * 2 - 1, -((e.clientY / innerHeight) * 2 - 1)), { passive: true });
+  hero.addEventListener('pointerdown', () => { uniforms.uWave.value = -0.1; });
 
   let visible = true, raf = 0, last = performance.now(), shown = false;
   const wake = () => { if (!raf && visible && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(frame); } };
@@ -224,8 +226,10 @@ export function startHero(hero, canvas) {
   function frame(now) {
     raf = 0;
     if (!visible || document.hidden) return; // paused off screen; wake() restarts it
-    uniforms.uTime.value += Math.min(0.05, (now - last) / 1000);
+    const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
+    uniforms.uTime.value += dt;
+    if (uniforms.uWave.value < 1.4) uniforms.uWave.value += dt * 0.8;
     pointer.lerp(target, 0.04);
     uniforms.uPointer.value.set(rtl ? -pointer.x : pointer.x, pointer.y);
     const p = Math.min(1, scrollY / hero.clientHeight); // scrolling away dives into the strands and dims them
@@ -234,7 +238,7 @@ export function startHero(hero, canvas) {
     group.rotation.z = (rtl ? 1 : -1) * p * 0.18;
     uniforms.uLevel.value = 1 - p * 0.55;
     composer.render();
-    if (!shown) { shown = true; hero.classList.add('is-live'); }
+    if (!shown) { shown = true; hero.classList.add('is-live'); uniforms.uWave.value = -0.1; } // the light arrives with one front
     raf = requestAnimationFrame(frame);
   }
 

@@ -1,8 +1,9 @@
 ---
-// In the field: the crews' photographs lie in a pile of cards cut to the mark's shape. Pressing the pile sends the
-// top card away to the bottom and the next one comes up (src/scripts/site.js); --i is each card's place in the pile.
+// In the field: the crews' photographs lie in a pile of cards cut to the mark's shape. Pressing the pile cuts the top
+// card open and the next one comes up (src/scripts/pile.js); --i is each card's place in the pile. Each photograph has
+// a tick in the fiber colour code, and the lit tick shows how far through the pile the visitor is.
 import { Image } from 'astro:assets';
-import { PHOTOS } from '../data/site.js';
+import { PHOTOS, FIBER_COLOURS } from '../data/site.js';
 
 const { t } = Astro.props;
 const files = import.meta.glob('../assets/photos/*.jpg', { eager: true, import: 'default' });
@@ -11,6 +12,10 @@ const shots = PHOTOS.map(key => {
   if (!src) throw new Error(`photo ${key}.jpg is missing from src/assets/photos; run npm run assets`);
   return { src, caption: t.projects.captions[key] };
 });
+const teeth = Array.from({ length: 24 }, (_, i) => {
+  const a = (i / 24) * Math.PI * 2, p = (r, x) => `${(r * Math.cos(x)).toFixed(1)} ${(r * Math.sin(x)).toFixed(1)}`;
+  return `M${p(38, a)}L${p(49, a + 0.06)}L${p(45, a + 0.17)}L${p(38, a + Math.PI / 24)}Z`;
+}).join('');
 ---
 <section class="section field" id="projects">
   <div class="wrap field-grid">
@@ -18,11 +23,27 @@ const shots = PHOTOS.map(key => {
       <h2>{t.projects.title}</h2>
       <p class="lead">{t.projects.intro}</p>
       <p class="field-cap" aria-live="polite" data-field-cap>{shots[0].caption}</p>
+      <div class="field-meter" aria-hidden="true">
+        <span class="field-n" dir="ltr"><span data-field-n>1</span> / {shots.length}</span>
+        <span class="field-ticks">{shots.map((_, i) => <i class={i === 0 ? 'is-on' : undefined} data-field-tick style={`--c:${FIBER_COLOURS[i]}`} />)}</span>
+      </div>
+      <p class="field-hint">{t.projects.hint}</p>
     </div>
-    <button class="field-stack" type="button" data-field aria-label={t.projects.next}>
-      {shots.map((s, i) => (
-        <Image src={s.src} alt={s.caption} data-caption={s.caption} style={`--i: ${i}`} widths={[480, 760, 1100]} sizes="(min-width: 900px) 32rem, 72vw" loading="lazy" />
-      ))}
-    </button>
+    <div class="field-pile">
+      <button class="field-stack" type="button" data-field aria-label={t.projects.next}>
+        {shots.map((s, i) => (
+          <Image src={s.src} alt={s.caption} data-caption={s.caption} style={`--i: ${i}`} widths={[480, 760, 1100]} sizes="(min-width: 900px) 32rem, 72vw" loading="lazy" />
+        ))}
+        <canvas class="field-fx" aria-hidden="true"></canvas>
+      </button>
+      <svg class="field-blade" viewBox="-50 -50 100 100" aria-hidden="true">
+        <g class="blade-spin">
+          <circle r="39" fill="#7b839c" />
+          <circle r="30" fill="none" stroke="#a7aec4" stroke-width="2" stroke-dasharray="4 7" />
+          <path d={teeth} fill="#e3e7f2" />
+          <circle r="9" fill="#262a3f" />
+        </g>
+      </svg>
+    </div>
   </div>
 </section>

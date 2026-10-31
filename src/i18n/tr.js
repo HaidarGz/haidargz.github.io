@@ -64,6 +64,18 @@ export default {
     ],
     figure: "Alacakaranlıkta yandan görülen bir Erbil sokağı: ekip güzergâhı işaretler, tekerlek testereli turkuaz bir Alpin mini yükleyici dar bir yarık açar, kanal döşenir ve ışıkla dolar, yarık doldurulup kapatılır ve trafik yeniden akar.",
   },
+  inside: {
+    title: "Hattın içinde",
+    intro: "Sokağınızın altına koyduklarımız, katman katman.",
+    alt: "Kesilerek açılmış bir fiber optik kablo: siyah bir kılıf, altın renkli mukavemet ipliği halkası ve her birinde on iki parlayan fiber bulunan altı renkli tüp.",
+    layers: [
+      { title: "HDPE kanal", text: "Hendeğe döşediğimiz siyah boru. Suyu ve toprağı kablodan uzak tutar." },
+      { title: "Dış kılıf", text: "Kablo kanaldan çekilirken tüm kabloyu koruyan dayanıklı kılıf." },
+      { title: "Mukavemet ipliği", text: "Aramid iplik gerilimi üstlenir, böylece içindeki cam zorlanmaz." },
+      { title: "Renk kodlu tüpler", text: "Her tüpün kendi rengi vardır, böylece teknisyenler doğru fiberi bulur." },
+      { title: "Cam fiberler", text: "Saç teli inceliğinde lifler, veriyi ışık darbeleriyle taşır." },
+    ],
+  },
   catalog: {
     title: "Katalog",
     soon: "Kataloğumuzun tamamı yolda",
@@ -77,6 +89,7 @@ export default {
     title: "Sahada",
     intro: "Ekiplerimiz gerçek sokaklarda iş başında.",
     next: "Sonraki fotoğraf",
+    hint: "Sonraki için fotoğrafa tıklayın",
     captions: {
       "trench-curb": "Bordür boyunca yeni açılmış mikro hendek",
       "street-cut": "Bir yerleşim sokağında kesim",
@@ -95,6 +108,9 @@ export default {
     phones: "Telefon ve WhatsApp",
     call: "Ara",
     whatsapp: "WhatsApp",
+    email: "E-posta",
+    write: "Bize yazın",
+    time: "Erbil'de saat",
     visit: "Adresimiz",
     address: "Baharka Yolu, Kark köyü, Erbil, Kürdistan Bölgesi, Irak",
     map: "Google Haritalar'da aç",

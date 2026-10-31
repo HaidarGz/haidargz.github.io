@@ -3,11 +3,13 @@
 import { Image } from 'astro:assets';
 import Logo from './Logo.astro';
 import cover from '../assets/photos/two-machines.jpg';
+import pulses from '../../concepts/light-pulses.png';
 import { CATALOG_PDF } from '../data/site.js';
 
 const { t } = Astro.props;
 ---
 <section class="section catalog" id="catalog">
+  <Image class="catalog-art" src={pulses} alt="" widths={[1280, 2000]} sizes="100vw" />
   <div class="wrap catalog-grid">
     <a
       class="catalog-book"
@@ -19,6 +21,7 @@ const { t } = Astro.props;
       <div class="book">
         <div class="book-back"></div>
         <div class="book-pages"></div>
+        <div class="book-edge"></div>
         <div class="book-cover">
           <Image src={cover} alt="" widths={[480, 800]} sizes="(min-width: 900px) 22rem, 80vw" />
           <Logo variant="stacked" class="book-logo" />

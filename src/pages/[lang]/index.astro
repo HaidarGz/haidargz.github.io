@@ -6,6 +6,7 @@ import CableBand from '../../components/CableBand.astro';
 import About from '../../components/About.astro';
 import Services from '../../components/Services.astro';
 import Process from '../../components/Process.astro';
+import Inside from '../../components/Inside.astro';
 import Catalog from '../../components/Catalog.astro';
 import Projects from '../../components/Projects.astro';
 import Contact from '../../components/Contact.astro';
@@ -26,9 +27,14 @@ const t = LANGS[lang].dict;
     <About t={t} />
     <Services t={t} />
     <Process t={t} />
+    <Inside t={t} />
     <Catalog t={t} />
     <Projects t={t} />
     <Contact t={t} />
   </main>
   <Footer lang={lang} t={t} />
+  <div class="route" data-route aria-hidden="true">
+    <span class="route-rule"><i></i></span>
+    <span class="route-m" dir="ltr"><span data-route-m>0000</span> {t.cable.unit}</span>
+  </div>
 </Base>

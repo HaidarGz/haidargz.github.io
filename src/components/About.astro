@@ -1,15 +1,21 @@
 ---
 import { Image } from 'astro:assets';
 import fence from '../assets/photos/fence-line.jpg';
+import curb from '../assets/photos/trench-curb.jpg';
 
 const { t } = Astro.props;
 ---
 <section class="section about" id="about">
   <div class="about-panel">
     <div data-reveal><h2 class="about-statement">{t.about.title}</h2></div>
-    <figure class="about-photo">
-      <Image src={fence} alt={t.about.photoAlt[0]} widths={[480, 760, 1100]} sizes="(min-width: 900px) 38vw, 86vw" />
-    </figure>
+    <div class="about-pics">
+      <figure class="about-photo" data-cut>
+        <Image src={fence} alt={t.about.photoAlt[0]} widths={[480, 760, 1100]} sizes="(min-width: 900px) 36vw, 86vw" />
+      </figure>
+      <figure class="about-slot" data-cut>
+        <Image src={curb} alt={t.about.photoAlt[1]} widths={[320, 640]} sizes="(min-width: 900px) 18vw, 40vw" />
+      </figure>
+    </div>
     <div class="about-text" data-reveal>
       {t.about.body.map((p, i) => <div><h3>{t.about.heads[i]}</h3><p>{p}</p></div>)}
       <ul class="values">

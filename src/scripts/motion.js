@@ -1,5 +1,5 @@
-// Scroll-driven motion: smooth scrolling, the hero's opening, the micro trenching story and the city's network
-// settling in. With reduced motion the page stays still and shows the finished pictures.
+// Scroll-driven motion: smooth scrolling, the hero's opening, the micro trenching story, the cable opening up and the
+// city's network settling in. With reduced motion the page stays still and shows the finished pictures.
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -23,6 +23,7 @@ if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   heroIntro();
   process();
+  inside();
   networkZoom();
   document.fonts.ready.then(() => ScrollTrigger.refresh()); // web fonts change heights, and pins depend on them
 }
@@ -57,6 +58,7 @@ function process() {
   const lead = $('[data-p=lead]'), windows = $$('[data-p=win]');
   const route = $('#pr-route rect'), slot = $('#pr-slot rect'), lay = $('#pr-lay rect'), run = $('#pr-run rect'), fill = $('#pr-fill rect');
   const narrow = matchMedia('(max-width: 700px)'), W = 480; // on phones the picture is a 480-wide window that follows the work
+  const dive = { z: 0 }, DUCT = [640, 330]; // the last beat: the view falls into the lit duct
 
   gsap.set(tires, { transformOrigin: '50% 50%' });
   gsap.set(legs, { transformOrigin: '50% 0%' });
@@ -89,7 +91,10 @@ function process() {
     .to(lead, { attr: { y: 286, height: 44 }, duration: 0.3 }, 'fill+=2.2') // the riser lights up into the house
     .to(windows, { opacity: 1, duration: 0.4, stagger: 0.03 }, 'fill+=2.4')
     .to(car, { x: 1500, duration: 1.6 }, 'fill+=2.6')
-    .to({}, { duration: 0.4 }); // a moment on the finished street before the page moves on
+    .to({}, { duration: 0.5 }) // a moment on the finished street
+    .to(dive, { z: 1, duration: 2, ease: 'power1.in' })
+    .to($('.steps'), { opacity: 0, duration: 0.6 }, '<')
+    .to($('.process-figure'), { opacity: 0, duration: 0.4 }, '<1.6'); // only once the view is inside the light
 
   const marks = ['cut', 'lay', 'fill'].map(label => tl.labels[label]);
   const render = () => {
@@ -99,17 +104,52 @@ function process() {
     const active = marks.filter(m => tl.time() >= m).length;
     // the phone's window centres on whatever is working: the painter, the machine, then the front of the duct or the fill
     const focus = [gsap.getProperty(painter, 'x'), gsap.getProperty(rig, 'x') - 128, +lay.getAttribute('x'), +fill.getAttribute('width')][active];
-    svg.setAttribute('viewBox', narrow.matches ? `${gsap.utils.clamp(0, 1200 - W, focus - W / 2)} 0 ${W} 460` : '0 0 1200 460');
+    const left = narrow.matches ? gsap.utils.clamp(0, 1200 - W, focus - W / 2) : 0, width = narrow.matches ? W : 1200;
+    // the zoom holds on the duct and draws it to the middle of the frame; k is the share of the frame still in view
+    const k = 0.015 ** dive.z, middle = share => gsap.utils.interpolate(share, 0.5, dive.z);
+    svg.setAttribute('viewBox', `${DUCT[0] - middle((DUCT[0] - left) / width) * width * k} ${DUCT[1] - middle(DUCT[1] / 460) * 460 * k} ${width * k} ${460 * k}`);
     steps.forEach((s, i) => s.classList.toggle('is-active', i === active));
   };
   tl.eventCallback('onUpdate', render);
   render(); // sets the phone framing before the pin measures the stage
   narrow.addEventListener('change', () => { render(); ScrollTrigger.refresh(); });
-  ScrollTrigger.create({ trigger: stage, start: 'top top', end: '+=400%', pin: true, scrub: 0.6, animation: tl });
+  ScrollTrigger.create({ trigger: stage, start: 'top top', end: '+=450%', pin: true, scrub: 0.6, animation: tl });
 }
 
-// The city's network at night settles into place as the contact section scrolls in.
+// Inside the line: the scroll opens the cable. The numbers live here so the scroll can move them before the 3D scene
+// has loaded; the scene itself arrives just before the section does.
+function inside() {
+  const stage = document.querySelector('[data-inside]');
+  if (!stage) return;
+  const steps = [...stage.querySelectorAll('[data-step]')], turns = [0, 1.5, 2.6, 3.6, 4.6]; // where each layer takes over
+  const state = { orbit: 0, duct: 0, jacket: 0, yarn: 0, tubes: 0, fan: 0 };
+  const tl = gsap.timeline({ defaults: { ease: 'power2.inOut' } })
+    .to(state, { orbit: 1, duration: 1.7 }, 0.4)
+    .to(state, { duct: 1, duration: 1.2 }, 0.9)
+    .to(state, { jacket: 1, duration: 1 }, 2)
+    .to(state, { yarn: 1, duration: 1 }, 3)
+    .to(state, { tubes: 1, duration: 1.1 }, 4)
+    .to(state, { fan: 1, duration: 1.3, ease: 'power2.out' }, 4.3)
+    .to({}, { duration: 0.5 });
+  const active = () => {
+    const now = turns.filter(t => tl.time() >= t).length - 1;
+    steps.forEach((s, i) => s.classList.toggle('is-active', i === now));
+  };
+  tl.eventCallback('onUpdate', active);
+  active();
+  ScrollTrigger.create({ trigger: stage, start: 'top top', end: '+=350%', pin: true, scrub: 0.6, animation: tl });
+  const soon = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    soon.disconnect();
+    import('./cable.js').then(m => m.startCable(stage, stage.querySelector('canvas'), state)).catch(console.warn); // the still picture stays
+  }, { rootMargin: '120% 0px' });
+  soon.observe(stage);
+}
+
+// The city's network at night settles into place as the contact section scrolls in, and the name at the foot of the
+// page rises out of the ground.
 function networkZoom() {
   const art = document.querySelector('[data-network-art]');
   if (art) gsap.fromTo(art, { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: art.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
+  gsap.fromTo('.footer-word', { yPercent: 62 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: '.site-footer', start: 'top bottom', end: 'top 45%', scrub: true } });
 }
