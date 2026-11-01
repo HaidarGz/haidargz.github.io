@@ -1,6 +1,5 @@
 node_modules/
 dist/
 .astro/
-.taste-skill/
 # the original photos and logo stay on this computer; the build uses the prepared copies in src/assets
 images/
