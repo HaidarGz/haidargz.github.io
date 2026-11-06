@@ -93,17 +93,17 @@ p { margin: 0; }
 [data-reveal] > :nth-child(n + 5) { transition-delay: 0.32s; }
 
 /* Photographs open the way the road does: a hot line, then the slot widens to the whole picture. */
-[data-cut] { position: relative; container-type: inline-size; }
-.reveal-ready [data-cut] img { clip-path: inset(0 50%); transition: clip-path 1.25s var(--ease) 0.34s, transform 1.2s var(--ease); }
+[data-cut] { position: relative; container-type: inline-size; --opening: 1.4s cubic-bezier(0.65, 0, 0.35, 1) 0.4s; } /* slow at both ends, so it reads as opening, not as a flash */
+.reveal-ready [data-cut] img { clip-path: inset(0 50%); transition: clip-path var(--opening), transform 1.2s var(--ease); }
 .reveal-ready [data-cut].is-in img { clip-path: inset(0); }
 .reveal-ready [data-cut]::before, .reveal-ready [data-cut]::after {
   content: ''; position: absolute; inset-block: 0; left: 50%; z-index: 1; width: 2px; margin-left: -1px;
   background: #ff5b65; box-shadow: 0 0 14px 2px rgba(225, 10, 23, 0.8); /* taste-skill-ignore: the hot edge of the cut */
-  transform: scaleY(0); transform-origin: top; pointer-events: none;
-  transition: transform 0.42s cubic-bezier(0.45, 0, 0.2, 1), translate 1.25s var(--ease) 0.34s, opacity 0.5s 1s;
+  scale: 1 0; transform-origin: top; pointer-events: none; /* scale, not transform: the minifier folds a translate set beside a transform into it, timing and all */
+  transition: scale 0.42s cubic-bezier(0.45, 0, 0.2, 1), translate var(--opening), opacity 0.35s 1.4s; /* the lines ride the edges and fade as they arrive */
 }
-.reveal-ready [data-cut].is-in::before { transform: none; translate: -50cqw 0; opacity: 0; }
-.reveal-ready [data-cut].is-in::after { transform: none; translate: 50cqw 0; opacity: 0; }
+.reveal-ready [data-cut].is-in::before { scale: 1; translate: -50cqw 0; opacity: 0; }
+.reveal-ready [data-cut].is-in::after { scale: 1; translate: 50cqw 0; opacity: 0; }
 
 /* ---------- Buttons and links: the mark's shape at button size ---------- */
 .btn {

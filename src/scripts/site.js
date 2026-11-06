@@ -44,7 +44,21 @@ if (!still) {
   const seen = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-in'); seen.unobserve(entry.target); }
   }, { rootMargin: '0px 0px -12% 0px' });
-  document.querySelectorAll('[data-reveal], [data-cut]').forEach(el => seen.observe(el));
+  document.querySelectorAll('[data-reveal]').forEach(el => seen.observe(el));
+  // Shut, a photograph is invisible to the browser's lazy loading, so it is fetched from here a screen ahead. It opens
+  // once it is well into view and has arrived; before, it opened on an empty slot and popped in afterwards.
+  const fetches = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) { fetches.unobserve(entry.target); entry.target.querySelector('img').loading = 'eager'; }
+  }, { rootMargin: '100% 0px' });
+  const opens = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) {
+      opens.unobserve(entry.target);
+      const img = entry.target.querySelector('img');
+      img.loading = 'eager'; // already so, unless this fired first
+      img.decode().catch(() => {}).then(() => entry.target.classList.add('is-in'));
+    }
+  }, { rootMargin: '0px 0px -30% 0px' });
+  document.querySelectorAll('[data-cut]').forEach(el => { fetches.observe(el); opens.observe(el); });
 }
 
 const clock = document.querySelector('[data-erbil-time]');
